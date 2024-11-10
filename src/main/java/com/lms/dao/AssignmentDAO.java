@@ -27,6 +27,22 @@ public class AssignmentDAO {
         }
     }
 
+    public Assignment findById(int assignmentId) throws SQLException {
+        String sql = "SELECT * FROM assignments WHERE assignment_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, assignmentId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return mapResultSetToAssignment(rs);
+            }
+        }
+        return null;
+    }
+
     public List<Assignment> findByCourseId(int courseId) throws SQLException {
         String sql = "SELECT * FROM assignments WHERE course_id = ?";
         List<Assignment> assignments = new ArrayList<>();

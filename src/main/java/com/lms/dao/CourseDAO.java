@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CourseDAO {
-    private UserDAO userDAO = new UserDAO();
+    private final UserDAO userDAO;
+
+    public CourseDAO() {
+        this.userDAO = new UserDAO();
+    }
 
     public void create(Course course) throws SQLException {
         String sql = "INSERT INTO courses (title, description, syllabus, instructor_id) VALUES (?, ?, ?, ?)";
@@ -39,7 +43,26 @@ public class CourseDAO {
             stmt.setInt(1, courseId);
             stmt.setInt(2, studentId);
             stmt.executeUpdate();
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new SQLException("Student is already enrolled in this course", e);
         }
+    }
+
+    public List<Course> findByInstructorId(int instructorId) throws SQLException {
+        String sql = "SELECT * FROM courses WHERE instructor_id = ?";
+        List<Course> courses = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, instructorId);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        }
+        return courses;
     }
 
     public Course findById(int courseId) throws SQLException {
@@ -56,6 +79,56 @@ public class CourseDAO {
             }
         }
         return null;
+    }
+
+    public List<Course> findByStudentId(int studentId) throws SQLException {
+        String sql = "SELECT c.* FROM courses c " +
+                    "JOIN course_enrollments ce ON c.course_id = ce.course_id " +
+                    "WHERE ce.student_id = ?";
+        List<Course> courses = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, studentId);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        }
+        return courses;
+    }
+
+    public int getEnrolledStudentCount(int courseId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM course_enrollments WHERE course_id = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, courseId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("count");
+            }
+        }
+        return 0;
+    }
+
+    public List<Course> findAll() throws SQLException {
+        String sql = "SELECT * FROM courses";
+        List<Course> courses = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        }
+        return courses;
     }
 
     private Course mapResultSetToCourse(ResultSet rs) throws SQLException {

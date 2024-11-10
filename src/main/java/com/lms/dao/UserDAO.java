@@ -52,4 +52,52 @@ public class UserDAO {
             User.UserRole.valueOf(rs.getString("role"))
         );
     }
+
+    public List<User> findAll() throws SQLException {
+        String sql = "SELECT * FROM users";
+        List<User> users = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        }
+        return users;
+    }
+
+    public User findByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
+            }
+        }
+        return null;
+    }
+
+    public List<User> findByRole(User.UserRole role) throws SQLException {
+        String sql = "SELECT * FROM users WHERE role = ?";
+        List<User> users = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, role.toString());
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        }
+        return users;
+    }
 } 

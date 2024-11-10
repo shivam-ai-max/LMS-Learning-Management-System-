@@ -28,12 +28,36 @@ public class Submission {
         this.submissionId = submissionId;
     }
 
+    public User getStudent() {
+        return student;
+    }
+
+    public void setStudent(User student) {
+        this.student = student;
+    }
+
+    public Assignment getAssignment() {
+        return assignment;
+    }
+
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Date getSubmissionDate() {
+        return submissionDate;
+    }
+
+    public void setSubmissionDate(Date submissionDate) {
+        this.submissionDate = submissionDate;
     }
 
     public Double getGrade() {

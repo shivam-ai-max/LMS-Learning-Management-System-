@@ -55,4 +55,8 @@ public class Assignment {
     public Map<User, Submission> getSubmissions() {
         return submissions;
     }
+
+    public void setSubmissions(Map<User, Submission> submissions) {
+        this.submissions = submissions;
+    }
 } 

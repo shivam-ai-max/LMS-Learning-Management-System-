@@ -1,32 +1,31 @@
 package com.lms.service;
 import com.lms.model.*;
-import java.util.ArrayList;
-import java.util.List;
+import com.lms.dao.*;
+import java.sql.SQLException;
 
 public class AdminService {
-    private List<User> users;
-    private List<Course> courses;
+    private final UserDAO userDAO;
+    private final CourseDAO courseDAO;
 
-    public AdminService() {
-        this.users = new ArrayList<>();
-        this.courses = new ArrayList<>();
+    public AdminService(UserDAO userDAO, CourseDAO courseDAO) {
+        this.userDAO = userDAO;
+        this.courseDAO = courseDAO;
     }
 
-    public void createUser(String name, String email, String password, User.UserRole role) {
-        int userId = users.size() + 1; // Simple ID generation
-        User user = new User(userId, name, email, password, role);
-        users.add(user);
+    public User createUser(String name, String email, String password, User.UserRole role) throws SQLException {
+        User user = new User(0, name, email, password, role);
+        userDAO.create(user);
+        return user;
     }
 
-    public void createCourse(String title, String description, String syllabus, User instructor) {
+    public Course createCourse(String title, String description, String syllabus, User instructor) throws SQLException {
         if (instructor.getRole() != User.UserRole.INSTRUCTOR) {
             throw new IllegalArgumentException("Only instructors can be assigned to courses");
         }
-        int courseId = courses.size() + 1;
-        Course course = new Course(courseId, title, description, syllabus, instructor);
-        courses.add(course);
+        Course course = new Course(0, title, description, syllabus, instructor);
+        courseDAO.create(course);
+        return course;
     }
 
-    // Additional admin functionalities
-    // ... (implement other admin methods)
+    // Additional methods for analytics and system settings
 } 

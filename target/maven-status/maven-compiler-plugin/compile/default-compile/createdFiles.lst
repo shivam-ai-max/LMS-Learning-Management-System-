@@ -1,0 +1,15 @@
+com\lms\model\Course.class
+com\lms\dao\AssignmentDAO.class
+com\lms\util\DatabaseTest.class
+com\lms\dao\UserDAO.class
+com\lms\model\User.class
+com\lms\service\StudentService.class
+com\lms\service\AdminService.class
+com\lms\util\DatabaseConnection.class
+com\lms\dao\SubmissionDAO.class
+com\lms\model\Submission.class
+com\lms\service\InstructorService.class
+com\lms\Main.class
+com\lms\model\User$UserRole.class
+com\lms\dao\CourseDAO.class
+com\lms\model\Assignment.class

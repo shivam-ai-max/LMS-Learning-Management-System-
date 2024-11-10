@@ -1,36 +1,42 @@
 package com.lms.service;
 import com.lms.model.*;
-import java.util.ArrayList;
+import com.lms.dao.*;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 public class InstructorService {
-    private List<Course> instructorCourses;
+    private final CourseDAO courseDAO;
+    private final AssignmentDAO assignmentDAO;
+    private final SubmissionDAO submissionDAO;
 
-    public InstructorService() {
-        this.instructorCourses = new ArrayList<>();
+    public InstructorService(CourseDAO courseDAO, AssignmentDAO assignmentDAO, SubmissionDAO submissionDAO) {
+        this.courseDAO = courseDAO;
+        this.assignmentDAO = assignmentDAO;
+        this.submissionDAO = submissionDAO;
     }
 
-    public void addCourse(Course course) {
-        if (!instructorCourses.contains(course)) {
-            instructorCourses.add(course);
-        }
+    public void addCourse(Course course) throws SQLException {
+        courseDAO.create(course);
     }
 
-    public void createAssignment(Course course, String title, String description, Date dueDate) {
-        if (!instructorCourses.contains(course)) {
-            throw new IllegalArgumentException("Instructor not authorized for this course");
-        }
-        int assignmentId = course.getAssignments().size() + 1;
-        Assignment assignment = new Assignment(assignmentId, title, description, dueDate);
-        course.getAssignments().add(assignment);
+    public Assignment createAssignment(Course course, String title, String description, Date dueDate) throws SQLException {
+        Assignment assignment = new Assignment(0, title, description, dueDate);
+        assignmentDAO.create(assignment, course.getCourseId());
+        return assignment;
     }
 
-    public void gradeSubmission(Submission submission, double grade, String feedback) {
+    public void gradeSubmission(Submission submission, double grade, String feedback) throws SQLException {
         submission.setGrade(grade);
         submission.setFeedback(feedback);
+        submissionDAO.updateGrade(submission.getSubmissionId(), grade, feedback);
     }
 
-    // Additional instructor functionalities
-    // ... (implement other instructor methods)
+    public List<Course> getInstructorCourses(int instructorId) throws SQLException {
+        return courseDAO.findByInstructorId(instructorId);
+    }
+
+    public Course getCourseById(int courseId) throws SQLException {
+        return courseDAO.findById(courseId);
+    }
 } 

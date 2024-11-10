@@ -1,45 +1,35 @@
 package com.lms.service;
 import com.lms.model.*;
-import java.util.ArrayList;
+import com.lms.dao.*;
+import java.sql.SQLException;
 import java.util.List;
 
 public class StudentService {
-    private User student;
-    private List<Course> enrolledCourses;
+    private final User student;
+    private final CourseDAO courseDAO;
+    private final AssignmentDAO assignmentDAO;
+    private final SubmissionDAO submissionDAO;
 
-    public StudentService(User student) {
+    public StudentService(User student, CourseDAO courseDAO, AssignmentDAO assignmentDAO, SubmissionDAO submissionDAO) {
         if (student.getRole() != User.UserRole.STUDENT) {
             throw new IllegalArgumentException("User must be a student");
         }
         this.student = student;
-        this.enrolledCourses = new ArrayList<>();
+        this.courseDAO = courseDAO;
+        this.assignmentDAO = assignmentDAO;
+        this.submissionDAO = submissionDAO;
     }
 
-    public void enrollInCourse(Course course) {
-        if (!enrolledCourses.contains(course)) {
-            enrolledCourses.add(course);
-            course.getEnrolledStudents().add(student);
-        }
+    public void enrollInCourse(Course course) throws SQLException {
+        courseDAO.enrollStudent(course.getCourseId(), student.getUserId());
     }
 
-    public void submitAssignment(Assignment assignment, String content) {
-        if (!isEnrolledInCourseWithAssignment(assignment)) {
-            throw new IllegalArgumentException("Student not enrolled in course");
-        }
-        Submission submission = new Submission(
-            assignment.getSubmissions().size() + 1,
-            student,
-            assignment,
-            content
-        );
-        assignment.getSubmissions().put(student, submission);
+    public void submitAssignment(Assignment assignment, String content) throws SQLException {
+        Submission submission = new Submission(0, student, assignment, content);
+        submissionDAO.create(submission, assignment.getAssignmentId(), student.getUserId());
     }
 
-    private boolean isEnrolledInCourseWithAssignment(Assignment assignment) {
-        // Implementation to check if student is enrolled in the course containing the assignment
-        return true; // Simplified for this example
+    public List<Course> getEnrolledCourses() throws SQLException {
+        return courseDAO.findByStudentId(student.getUserId());
     }
-
-    // Additional student functionalities
-    // ... (implement other student methods)
 } 
